@@ -1,8 +1,6 @@
-let id = null;
-
 const getIdPromise = new Promise((resolve) => {
     checkInterval = setInterval(() => {
-        id = window.rb_sync?.id;
+        const id = window.rb_sync?.id;
 
         if (id) {
             clearInterval(checkInterval)
@@ -11,8 +9,28 @@ const getIdPromise = new Promise((resolve) => {
     }, 500)
 })
 
-getIdPromise.then(async (id) => {
-    const res = await fetch(`https://ad.mail.ru/adq/?q=1530853&fpid=${id}`);
-    
-    console.log('!!!!! res', res)
-});
+const getResponse = (id) => {
+    fetch(`https://ad.mail.ru/adp/?q=1530853&fpid=${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+            console.log('fpid: ', id)
+            console.log('response', data)
+
+            const textarea = document.querySelector('#TextArea')
+
+            textarea.value = JSON.stringify(data[0].json)
+        });
+}
+
+const handleSendFpid = () => {
+    const fpidInput = document.querySelector('#fpidInput');
+
+    const fpid = fpidInput.value;
+
+    getResponse(fpid);
+}
+
+
+getIdPromise.then(getResponse);
+
+document.querySelector('#fpidButton').addEventListener('click', handleSendFpid);
